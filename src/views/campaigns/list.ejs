@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head><title>Campaigns — Email OS</title></head>
+<body style="font-family: sans-serif; max-width: 800px; margin: 2em auto;">
+  <h1>Email OS</h1>
+  <nav><a href="/contacts">Contacts</a> | <a href="/campaigns">Campaigns</a></nav>
+
+  <h2>Campaigns</h2>
+  <p>Drafts are created via the <code>POST /api/campaigns/draft</code> endpoint.</p>
+
+  <table border="1" cellpadding="6" cellspacing="0" style="width: 100%;">
+    <tr><th>Subject</th><th>Status</th><th>Created</th><th>Sent</th><th></th></tr>
+    <% campaigns.forEach(c => { %>
+      <tr>
+        <td><%= c.subject %></td>
+        <td><%= c.status %></td>
+        <td><%= c.created_at.toISOString().slice(0,10) %></td>
+        <td><%= c.sent_at ? c.sent_at.toISOString().slice(0,10) : "" %></td>
+        <td><a href="/campaigns/<%= c.id %>">View</a></td>
+      </tr>
+    <% }) %>
+  </table>
+</body>
+</html>

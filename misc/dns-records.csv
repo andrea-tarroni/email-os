@@ -1,0 +1,5 @@
+Tipo,Nome,Valore
+CNAME,ekeibqmqembpodg5ctxzxeqgobr7qd4p._domainkey.mail.andreatarroni.com,ekeibqmqembpodg5ctxzxeqgobr7qd4p.dkim.amazonses.com
+CNAME,adgbxvlhziiyqcbsti3grg5jxxtcslwo._domainkey.mail.andreatarroni.com,adgbxvlhziiyqcbsti3grg5jxxtcslwo.dkim.amazonses.com
+CNAME,dlh3zerwoxwollzeymx5akusfrid33oy._domainkey.mail.andreatarroni.com,dlh3zerwoxwollzeymx5akusfrid33oy.dkim.amazonses.com
+TXT,_dmarc.mail.andreatarroni.com,"v=DMARC1; p=none;"

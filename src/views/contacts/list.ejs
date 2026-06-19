@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head><title>Contacts — Email OS</title></head>
+<body style="font-family: sans-serif; max-width: 800px; margin: 2em auto;">
+  <h1>Email OS</h1>
+  <nav><a href="/contacts">Contacts</a> | <a href="/campaigns">Campaigns</a></nav>
+
+  <h2>Contacts</h2>
+  <p>
+    <% counts.forEach(c => { %>
+      <a href="/contacts?status=<%= c.status %>"><%= c.status %>: <%= c.count %></a> &nbsp;
+    <% }) %>
+    <a href="/contacts">all</a>
+  </p>
+
+  <p><a href="/contacts/new">+ Add contact</a></p>
+
+  <table border="1" cellpadding="6" cellspacing="0" style="width: 100%;">
+    <tr><th>Email</th><th>Name</th><th>Source</th><th>Status</th><th>Created</th><th></th></tr>
+    <% contacts.forEach(c => { %>
+      <tr>
+        <td><%= c.email %></td>
+        <td><%= c.name || "" %></td>
+        <td><%= c.source || "" %></td>
+        <td><%= c.status %></td>
+        <td><%= c.created_at.toISOString().slice(0,10) %></td>
+        <td>
+          <form method="post" action="/contacts/<%= c.id %>/delete" style="display:inline;">
+            <button type="submit" onclick="return confirm('Delete this contact?')">Delete</button>
+          </form>
+        </td>
+      </tr>
+    <% }) %>
+  </table>
+</body>
+</html>

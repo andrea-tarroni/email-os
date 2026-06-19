@@ -1,0 +1,29 @@
+import "dotenv/config";
+import express from "express";
+import path from "node:path";
+import { campaignsRouter } from "./routes/campaigns";
+import { campaignsApiRouter } from "./routes/campaignsApi";
+import { contactsRouter } from "./routes/contacts";
+import { signupRouter } from "./routes/signup";
+import { unsubscribeRouter } from "./routes/unsubscribe";
+
+const app = express();
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.set("view engine", "ejs");
+app.set("views", path.join(__dirname, "views"));
+
+app.use("/api/campaigns", campaignsApiRouter);
+app.use("/campaigns", campaignsRouter);
+app.use("/contacts", contactsRouter);
+app.use("/signup", signupRouter);
+app.use("/unsubscribe", unsubscribeRouter);
+
+app.get("/", (_req, res) => {
+  res.redirect("/contacts");
+});
+
+const port = process.env.PORT ?? 3000;
+app.listen(port, () => {
+  console.log(`Email OS listening on port ${port}`);
+});
