@@ -3,6 +3,19 @@ import { upsertActiveContact } from "../services/contacts";
 
 export const signupRouter = Router();
 
+const LANDING_PAGE_ORIGIN = "https://andreatarroni.com";
+
+signupRouter.use((req, res, next) => {
+  res.setHeader("Access-Control-Allow-Origin", LANDING_PAGE_ORIGIN);
+  res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+  if (req.method === "OPTIONS") {
+    res.sendStatus(204);
+    return;
+  }
+  next();
+});
+
 /**
  * POST /signup
  * Public endpoint for the landing page opt-in form (replaces GetResponse's
