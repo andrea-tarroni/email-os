@@ -10,6 +10,10 @@ import { webhooksRouter } from "./routes/webhooks";
 
 const app = express();
 
+// Trust the Nginx reverse proxy's X-Forwarded-For so req.ip reflects the
+// real client IP instead of localhost.
+app.set("trust proxy", "loopback");
+
 // Mounted before the global JSON body parser since SNS posts text/plain
 // and the route parses its own raw body.
 app.use(process.env.SNS_WEBHOOK_PATH ?? "/webhooks/ses-notifications", webhooksRouter);
