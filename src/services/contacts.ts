@@ -22,6 +22,25 @@ export async function upsertActiveContact(
   return rows[0];
 }
 
+export async function suppressContact(
+  email: string,
+  type: "bounce" | "complaint",
+  metadata: unknown
+) {
+  const status = type === "bounce" ? "bounced" : "complained";
+  const { rows } = await pool.query(
+    `UPDATE contacts SET status = $1 WHERE email = $2 RETURNING id`,
+    [status, email]
+  );
+  if (rows[0]) {
+    await pool.query(
+      `INSERT INTO events (contact_id, type, metadata) VALUES ($1, $2, $3)`,
+      [rows[0].id, type, metadata]
+    );
+  }
+  return rows[0] ?? null;
+}
+
 export async function unsubscribeByToken(token: string) {
   const { rows } = await pool.query(
     `UPDATE contacts SET status = 'unsubscribed' WHERE unsubscribe_token = $1 RETURNING id`,

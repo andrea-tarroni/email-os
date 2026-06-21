@@ -6,8 +6,14 @@ import { campaignsApiRouter } from "./routes/campaignsApi";
 import { contactsRouter } from "./routes/contacts";
 import { signupRouter } from "./routes/signup";
 import { unsubscribeRouter } from "./routes/unsubscribe";
+import { webhooksRouter } from "./routes/webhooks";
 
 const app = express();
+
+// Mounted before the global JSON body parser since SNS posts text/plain
+// and the route parses its own raw body.
+app.use(process.env.SNS_WEBHOOK_PATH ?? "/webhooks/ses-notifications", webhooksRouter);
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.set("view engine", "ejs");
