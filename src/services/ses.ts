@@ -35,7 +35,7 @@ function buildRawMessage(opts: {
     `Content-Type: multipart/alternative; boundary="${boundary}"`,
   ].join("\r\n");
 
-  const textPart = opts.text ?? opts.html.replace(/<[^>]+>/g, "");
+  const textPart = opts.text ?? opts.html.replace(/<\/(p|div|h[1-6]|li|tr|br)>/gi, "\n").replace(/<[^>]+>/g, "");
 
   const body = [
     `--${boundary}`,
