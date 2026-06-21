@@ -1,0 +1,29 @@
+Hello,
+
+Thank you for following up. Here are the details of my use case:
+
+WHAT I SEND
+I run a personal newsletter for andreatarroni.com, a small content/coaching brand. I send occasional newsletters (roughly 1-4 times per month, no fixed schedule) with articles, updates, and occasional promotions related to my own content and courses. I do not send transactional email through SES.
+
+HOW MY LIST IS BUILT
+All recipients are genuine opt-ins. People subscribe through a signup form on my own website (andreatarroni.com), where they explicitly request to join the list. I also invite engaged members of my existing audience (from a separate, related project of mine) to opt in separately if they're interested in this specific newsletter - this is not a bulk import of any existing list, just a slow trickle of new, deliberate sign-ups. I expect to have somewhere between 10 and 100 active subscribers in the near term, growing gradually and organically.
+
+Every contact record stores consent metadata (timestamp, source, and IP address of signup) so I can demonstrate how and when consent was given.
+
+HOW I HANDLE BOUNCES, COMPLAINTS, AND UNSUBSCRIBES
+I built a small self-hosted application specifically for this purpose, with deliverability handled as a first-class concern, not an afterthought:
+
+- Every email includes a one-click unsubscribe link in the footer, plus a List-Unsubscribe header (RFC 8058) so Gmail/Yahoo/Outlook can offer their native one-click unsubscribe. Clicking it immediately and permanently removes the contact from future sends.
+- I have a webhook endpoint that receives SES bounce and complaint notifications via SNS in real time. Permanent bounces and any complaint immediately and automatically suppress that contact from all future sends - no manual intervention needed. Transient bounces are not auto-suppressed since they're often temporary (e.g. mailbox full).
+- This suppression logic is already deployed and verified end-to-end against my domain identity (mail.andreatarroni.com), including a real SNS subscription handshake confirmed in the SNS console.
+- I only send to contacts with an "active" status; bounced, complained, or unsubscribed contacts are automatically excluded from every send.
+
+SENDING IDENTITY
+I send exclusively from a dedicated subdomain, mail.andreatarroni.com, which is fully authenticated with SPF, DKIM, and a custom MAIL FROM domain aligned for DMARC. This isolates this newsletter's sending reputation from my main domain's regular email traffic.
+
+EXAMPLE CONTENT
+My emails are plain newsletter-style HTML content: a short article or update, occasionally a link to a course or resource I created, always with the unsubscribe footer described above. I'm happy to forward an example email or share a link if that's helpful.
+
+Given the very low, organically-growing volume (well under 100 recipients) and the suppression/unsubscribe mechanics already built and verified, I don't expect to generate meaningful bounce or complaint rates. I'd appreciate having production access so I can begin sending to my actual subscriber list rather than only to my own verified test address.
+
+Thank you for your time and consideration.

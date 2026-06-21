@@ -23,11 +23,12 @@ function buildRawMessage(opts: {
   const htmlWithFooter = `${opts.html}<hr><p style="font-size:12px;color:#888;">
     <a href="${unsubUrl}">Unsubscribe</a></p>`;
   const boundary = `----=_EmailOS_${Date.now()}`;
+  const encodedSubject = `=?UTF-8?B?${Buffer.from(opts.subject, "utf8").toString("base64")}?=`;
 
   const headers = [
     `From: ${opts.from}`,
     `To: ${opts.to}`,
-    `Subject: ${opts.subject}`,
+    `Subject: ${encodedSubject}`,
     `MIME-Version: 1.0`,
     `List-Unsubscribe: <${unsubUrl}>, <mailto:${opts.from}?subject=unsubscribe>`,
     `List-Unsubscribe-Post: List-Unsubscribe=One-Click`,
