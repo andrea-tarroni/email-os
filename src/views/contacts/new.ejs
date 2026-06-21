@@ -1,15 +1,27 @@
 <!DOCTYPE html>
 <html>
-<head><title>Add Contact — Email OS</title></head>
-<body style="font-family: sans-serif; max-width: 800px; margin: 2em auto;">
-  <h1>Email OS</h1>
-  <nav><a href="/contacts">Contacts</a> | <a href="/campaigns">Campaigns</a></nav>
+<head>
+  <title>Add Contact — Email OS</title>
+  <link rel="stylesheet" href="/admin.css">
+</head>
+<body>
+  <div class="admin-container">
+    <nav class="admin-nav">
+      <span class="brand">Email OS</span>
+      <a href="/contacts" class="active">Contacts</a>
+      <a href="/campaigns">Campaigns</a>
+    </nav>
 
-  <h2>Add contact</h2>
-  <form method="post" action="/contacts">
-    <p><label>Email <input type="email" name="email" required></label></p>
-    <p><label>Name <input type="text" name="name"></label></p>
-    <button type="submit">Add</button>
-  </form>
+    <h2>Add contact</h2>
+    <form method="post" action="/contacts" class="admin-form">
+      <label>Email
+        <input type="email" name="email" required>
+      </label>
+      <label>Name
+        <input type="text" name="name">
+      </label>
+      <button type="submit" class="btn">Add</button>
+    </form>
+  </div>
 </body>
 </html>

@@ -1,24 +1,32 @@
 <!DOCTYPE html>
 <html>
-<head><title>Campaigns — Email OS</title></head>
-<body style="font-family: sans-serif; max-width: 800px; margin: 2em auto;">
-  <h1>Email OS</h1>
-  <nav><a href="/contacts">Contacts</a> | <a href="/campaigns">Campaigns</a></nav>
+<head>
+  <title>Campaigns — Email OS</title>
+  <link rel="stylesheet" href="/admin.css">
+</head>
+<body>
+  <div class="admin-container">
+    <nav class="admin-nav">
+      <span class="brand">Email OS</span>
+      <a href="/contacts">Contacts</a>
+      <a href="/campaigns" class="active">Campaigns</a>
+    </nav>
 
-  <h2>Campaigns</h2>
-  <p>Drafts are created via the <code>POST /api/campaigns/draft</code> endpoint.</p>
+    <h2>Campaigns</h2>
+    <p class="muted" style="margin-bottom: 20px;">Drafts are created via the <code>POST /api/campaigns/draft</code> endpoint.</p>
 
-  <table border="1" cellpadding="6" cellspacing="0" style="width: 100%;">
-    <tr><th>Subject</th><th>Status</th><th>Created</th><th>Sent</th><th></th></tr>
-    <% campaigns.forEach(c => { %>
-      <tr>
-        <td><%= c.subject %></td>
-        <td><%= c.status %></td>
-        <td><%= c.created_at.toISOString().slice(0,10) %></td>
-        <td><%= c.sent_at ? c.sent_at.toISOString().slice(0,10) : "" %></td>
-        <td><a href="/campaigns/<%= c.id %>">View</a></td>
-      </tr>
-    <% }) %>
-  </table>
+    <table class="admin-table">
+      <tr><th>Subject</th><th>Status</th><th>Created</th><th>Sent</th><th></th></tr>
+      <% campaigns.forEach(c => { %>
+        <tr>
+          <td><%= c.subject %></td>
+          <td><span class="badge badge-<%= c.status %>"><%= c.status %></span></td>
+          <td class="muted"><%= c.created_at.toISOString().slice(0,10) %></td>
+          <td class="muted"><%= c.sent_at ? c.sent_at.toISOString().slice(0,10) : "—" %></td>
+          <td><a href="/campaigns/<%= c.id %>" class="btn-outline btn-small">View</a></td>
+        </tr>
+      <% }) %>
+    </table>
+  </div>
 </body>
 </html>

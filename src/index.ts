@@ -21,6 +21,7 @@ app.use(process.env.SNS_WEBHOOK_PATH ?? "/webhooks/ses-notifications", webhooksR
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(express.static(path.join(__dirname, "public")));
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 
