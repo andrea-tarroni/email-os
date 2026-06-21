@@ -1,20 +1,38 @@
 import { Router } from "express";
 import { pool } from "../db";
 import { sendCampaignEmail } from "../services/ses";
+import { buildSortClause } from "../services/sorting";
 
 export const campaignsRouter = Router();
 
 const SEND_DELAY_MS = 200; // simple pacing; no queue infra needed at this volume
+const SORTABLE_COLUMNS = ["subject", "status", "created_at", "sent_at"];
 
 function delay(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-campaignsRouter.get("/", async (_req, res) => {
-  const { rows } = await pool.query(
-    `SELECT id, subject, status, created_at, sent_at FROM campaigns ORDER BY created_at DESC`
+campaignsRouter.get("/", async (req, res) => {
+  const search = typeof req.query.q === "string" ? req.query.q.trim() : "";
+  const sort = buildSortClause(
+    typeof req.query.sort === "string" ? req.query.sort : undefined,
+    typeof req.query.dir === "string" ? req.query.dir : undefined,
+    SORTABLE_COLUMNS,
+    "created_at"
   );
-  res.render("campaigns/list", { campaigns: rows });
+
+  const params: unknown[] = [];
+  let where = "";
+  if (search) {
+    params.push(`%${search}%`);
+    where = `WHERE subject ILIKE $${params.length}`;
+  }
+
+  const { rows } = await pool.query(
+    `SELECT id, subject, status, created_at, sent_at FROM campaigns ${where} ORDER BY ${sort.orderBy}`,
+    params
+  );
+  res.render("campaigns/list", { campaigns: rows, search, sort });
 });
 
 campaignsRouter.get("/:id", async (req, res) => {

@@ -10,13 +10,38 @@
       <span class="brand">Email OS</span>
       <a href="/contacts">Contacts</a>
       <a href="/campaigns" class="active">Campaigns</a>
+      <a href="/tags">Tags</a>
     </nav>
 
     <h2>Campaigns</h2>
     <p class="muted" style="margin-bottom: 20px;">Drafts are created via the <code>POST /api/campaigns/draft</code> endpoint.</p>
 
+    <form method="get" action="/campaigns" style="display:flex; gap:8px; margin-bottom: 20px;">
+      <input type="text" name="q" value="<%= search %>" placeholder="Search subject…"
+        style="font-family:'Manrope',sans-serif; font-size:14px; padding:10px 18px; border-radius:9999px; border:1.5px solid #ccc; min-width:220px;">
+      <button type="submit" class="btn-outline btn-small">Search</button>
+    </form>
+
+    <%
+      function sortLink(column, label) {
+        const dir = (sort.column === column && sort.direction === 'asc') ? 'desc' : 'asc';
+        const params = new URLSearchParams();
+        if (search) params.set('q', search);
+        params.set('sort', column);
+        params.set('dir', dir);
+        const arrow = sort.column === column ? (sort.direction === 'asc' ? ' ▲' : ' ▼') : '';
+        return `<a href="/campaigns?${params.toString()}">${label}${arrow}</a>`;
+      }
+    %>
+
     <table class="admin-table">
-      <tr><th>Subject</th><th>Status</th><th>Created</th><th>Sent</th><th></th></tr>
+      <tr>
+        <th><%- sortLink('subject', 'Subject') %></th>
+        <th><%- sortLink('status', 'Status') %></th>
+        <th><%- sortLink('created_at', 'Created') %></th>
+        <th><%- sortLink('sent_at', 'Sent') %></th>
+        <th></th>
+      </tr>
       <% campaigns.forEach(c => { %>
         <tr>
           <td><%= c.subject %></td>

@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title><%= contact.email %> — Email OS</title>
+  <link rel="stylesheet" href="/admin.css">
+</head>
+<body>
+  <div class="admin-container">
+    <nav class="admin-nav">
+      <span class="brand">Email OS</span>
+      <a href="/contacts" class="active">Contacts</a>
+      <a href="/campaigns">Campaigns</a>
+      <a href="/tags">Tags</a>
+    </nav>
+
+    <p class="muted"><a href="/contacts">&larr; Back to contacts</a></p>
+    <h2><%= contact.email %></h2>
+    <p style="margin-bottom: 16px;">
+      <span class="badge badge-<%= contact.status %>"><%= contact.status %></span>
+      <span class="muted">— subscribed for <%= Math.max(0, Math.floor((Date.now() - contact.created_at.getTime()) / 86400000)) %> day<%= Math.floor((Date.now() - contact.created_at.getTime()) / 86400000) === 1 ? "" : "s" %></span>
+    </p>
+
+    <h3>Details</h3>
+    <form method="post" action="/contacts/<%= contact.id %>" class="admin-form">
+      <label>Email
+        <input type="email" name="email" value="<%= contact.email %>" required>
+      </label>
+      <label>Name
+        <input type="text" name="name" value="<%= contact.name || '' %>">
+      </label>
+      <button type="submit" class="btn">Save changes</button>
+    </form>
+
+    <h3>Status</h3>
+    <form method="post" action="/contacts/<%= contact.id %>/status" style="display:flex; gap:8px; align-items:center;">
+      <select name="status" style="font-family:'Manrope',sans-serif; font-size:14px; padding:8px 14px; border-radius:9999px; border:1.5px solid #ccc;">
+        <% ["active", "unsubscribed", "bounced", "complained"].forEach(s => { %>
+          <option value="<%= s %>" <%= contact.status === s ? "selected" : "" %>><%= s %></option>
+        <% }) %>
+      </select>
+      <button type="submit" class="btn-outline btn-small">Update status</button>
+    </form>
+
+    <h3>Tags</h3>
+    <p>
+      <% if (tags.length === 0) { %>
+        <span class="muted">No tags assigned.</span>
+      <% } %>
+      <% tags.forEach(t => { %>
+        <span class="badge badge-draft" style="margin-right:6px;"><%= t.name %>
+          <form method="post" action="/contacts/<%= contact.id %>/tags/<%= t.id %>/delete" style="display:inline;">
+            <button type="submit" style="border:none; background:none; cursor:pointer; font-weight:700;" title="Remove tag">&times;</button>
+          </form>
+        </span>
+      <% }) %>
+    </p>
+    <% if (availableTags.length > 0) { %>
+      <form method="post" action="/contacts/<%= contact.id %>/tags" style="display:flex; gap:8px; align-items:center;">
+        <select name="tagId" style="font-family:'Manrope',sans-serif; font-size:14px; padding:8px 14px; border-radius:9999px; border:1.5px solid #ccc;">
+          <% availableTags.forEach(t => { %>
+            <option value="<%= t.id %>"><%= t.name %></option>
+          <% }) %>
+        </select>
+        <button type="submit" class="btn-outline btn-small">Add tag</button>
+      </form>
+    <% } else { %>
+      <p class="muted">All existing tags are already assigned. <a href="/tags">Manage tags</a></p>
+    <% } %>
+
+    <h3>Consent</h3>
+    <table class="admin-table">
+      <tr><th>Source</th><td><%= contact.consent_source || "—" %></td></tr>
+      <tr><th>IP address</th><td><%= contact.consent_ip || "—" %></td></tr>
+      <tr><th>Timestamp</th><td><%= contact.consent_timestamp ? contact.consent_timestamp.toISOString().slice(0,16).replace('T', ' ') : "—" %></td></tr>
+      <tr><th>Created</th><td><%= contact.created_at.toISOString().slice(0,16).replace('T', ' ') %></td></tr>
+    </table>
+
+    <h3>Event history</h3>
+    <table class="admin-table">
+      <tr><th>Type</th><th>Reference</th><th>When</th></tr>
+      <% if (events.length === 0) { %>
+        <tr><td colspan="3" class="muted">No events yet.</td></tr>
+      <% } %>
+      <% events.forEach(e => { %>
+        <tr>
+          <td><%= e.type %></td>
+          <td class="muted">
+            <% if (e.campaign_id) { %>campaign #<%= e.campaign_id %><% } %>
+            <% if (e.url) { %><%= e.url %><% } %>
+          </td>
+          <td class="muted"><%= e.created_at.toISOString().slice(0,16).replace('T', ' ') %></td>
+        </tr>
+      <% }) %>
+    </table>
+
+    <h3>Delete contact</h3>
+    <form method="post" action="/contacts/<%= contact.id %>/delete">
+      <button type="submit" class="btn-outline btn-small" onclick="return confirm('Delete this contact permanently? This cannot be undone.')">Delete contact</button>
+    </form>
+  </div>
+</body>
+</html>

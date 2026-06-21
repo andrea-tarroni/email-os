@@ -10,32 +10,55 @@
       <span class="brand">Email OS</span>
       <a href="/contacts" class="active">Contacts</a>
       <a href="/campaigns">Campaigns</a>
+      <a href="/tags">Tags</a>
     </nav>
 
     <h2>Contacts</h2>
     <div class="status-counts">
-      <a href="/contacts" class="<%= statusFilter ? '' : 'active' %>">All</a>
+      <a href="/contacts<%= search ? '?q=' + encodeURIComponent(search) : '' %>" class="<%= statusFilter ? '' : 'active' %>">All</a>
       <% counts.forEach(c => { %>
-        <a href="/contacts?status=<%= c.status %>" class="<%= statusFilter === c.status ? 'active' : '' %>"><%= c.status %> (<%= c.count %>)</a>
+        <a href="/contacts?status=<%= c.status %><%= search ? '&q=' + encodeURIComponent(search) : '' %>" class="<%= statusFilter === c.status ? 'active' : '' %>"><%= c.status %> (<%= c.count %>)</a>
       <% }) %>
     </div>
 
-    <p style="margin-bottom: 20px;"><a href="/contacts/new" class="btn">+ Add contact</a></p>
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px; gap: 16px; flex-wrap: wrap;">
+      <form method="get" action="/contacts" style="display:flex; gap:8px;">
+        <% if (statusFilter) { %><input type="hidden" name="status" value="<%= statusFilter %>"><% } %>
+        <input type="text" name="q" value="<%= search %>" placeholder="Search email or name…"
+          style="font-family:'Manrope',sans-serif; font-size:14px; padding:10px 18px; border-radius:9999px; border:1.5px solid #ccc; min-width:220px;">
+        <button type="submit" class="btn-outline btn-small">Search</button>
+      </form>
+      <a href="/contacts/new" class="btn">+ Add contact</a>
+    </div>
+
+    <%
+      function sortLink(column, label) {
+        const dir = (sort.column === column && sort.direction === 'asc') ? 'desc' : 'asc';
+        const params = new URLSearchParams();
+        if (statusFilter) params.set('status', statusFilter);
+        if (search) params.set('q', search);
+        params.set('sort', column);
+        params.set('dir', dir);
+        const arrow = sort.column === column ? (sort.direction === 'asc' ? ' ▲' : ' ▼') : '';
+        return `<a href="/contacts?${params.toString()}">${label}${arrow}</a>`;
+      }
+    %>
 
     <table class="admin-table">
-      <tr><th>Email</th><th>Name</th><th>Source</th><th>Status</th><th>Created</th><th></th></tr>
+      <tr>
+        <th><%- sortLink('email', 'Email') %></th>
+        <th><%- sortLink('name', 'Name') %></th>
+        <th>Source</th>
+        <th><%- sortLink('status', 'Status') %></th>
+        <th><%- sortLink('created_at', 'Created') %></th>
+      </tr>
       <% contacts.forEach(c => { %>
         <tr>
-          <td><%= c.email %></td>
+          <td><a href="/contacts/<%= c.id %>"><%= c.email %></a></td>
           <td><%= c.name || "—" %></td>
           <td><%= c.source || "—" %></td>
           <td><span class="badge badge-<%= c.status %>"><%= c.status %></span></td>
           <td class="muted"><%= c.created_at.toISOString().slice(0,10) %></td>
-          <td>
-            <form method="post" action="/contacts/<%= c.id %>/delete" class="delete-form">
-              <button type="submit" class="btn-outline btn-small" onclick="return confirm('Delete this contact?')">Delete</button>
-            </form>
-          </td>
         </tr>
       <% }) %>
     </table>

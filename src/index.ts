@@ -5,6 +5,7 @@ import { campaignsRouter } from "./routes/campaigns";
 import { campaignsApiRouter } from "./routes/campaignsApi";
 import { contactsRouter } from "./routes/contacts";
 import { signupRouter } from "./routes/signup";
+import { tagsRouter } from "./routes/tags";
 import { unsubscribeRouter } from "./routes/unsubscribe";
 import { webhooksRouter } from "./routes/webhooks";
 import { adminAuth } from "./middleware/adminAuth";
@@ -28,6 +29,7 @@ app.set("views", path.join(__dirname, "views"));
 app.use("/api/campaigns", campaignsApiRouter);
 app.use("/campaigns", adminAuth, campaignsRouter);
 app.use("/contacts", adminAuth, contactsRouter);
+app.use("/tags", adminAuth, tagsRouter);
 app.use("/signup", signupRouter);
 app.use("/unsubscribe", unsubscribeRouter);
 

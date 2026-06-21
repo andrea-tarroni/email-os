@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Tags — Email OS</title>
+  <link rel="stylesheet" href="/admin.css">
+</head>
+<body>
+  <div class="admin-container">
+    <nav class="admin-nav">
+      <span class="brand">Email OS</span>
+      <a href="/contacts">Contacts</a>
+      <a href="/campaigns">Campaigns</a>
+      <a href="/tags" class="active">Tags</a>
+    </nav>
+
+    <h2>Tags</h2>
+
+    <form method="post" action="/tags" class="admin-form" style="display:flex; gap:8px; align-items:flex-end; margin-bottom: 24px;">
+      <label style="margin-bottom:0; flex:1;">New tag
+        <input type="text" name="name" placeholder="e.g. VIP" required>
+      </label>
+      <button type="submit" class="btn">Add</button>
+    </form>
+
+    <table class="admin-table">
+      <tr><th>Name</th><th>Contacts</th><th></th></tr>
+      <% if (tags.length === 0) { %>
+        <tr><td colspan="3" class="muted">No tags yet.</td></tr>
+      <% } %>
+      <% tags.forEach(t => { %>
+        <tr>
+          <td><%= t.name %></td>
+          <td class="muted"><%= t.contact_count %></td>
+          <td>
+            <form method="post" action="/tags/<%= t.id %>/delete">
+              <button type="submit" class="btn-outline btn-small" onclick="return confirm('Delete this tag? It will be removed from all contacts that have it.')">Delete</button>
+            </form>
+          </td>
+        </tr>
+      <% }) %>
+    </table>
+  </div>
+</body>
+</html>
