@@ -7,6 +7,7 @@ import { contactsRouter } from "./routes/contacts";
 import { signupRouter } from "./routes/signup";
 import { unsubscribeRouter } from "./routes/unsubscribe";
 import { webhooksRouter } from "./routes/webhooks";
+import { adminAuth } from "./middleware/adminAuth";
 
 const app = express();
 
@@ -24,12 +25,12 @@ app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 
 app.use("/api/campaigns", campaignsApiRouter);
-app.use("/campaigns", campaignsRouter);
-app.use("/contacts", contactsRouter);
+app.use("/campaigns", adminAuth, campaignsRouter);
+app.use("/contacts", adminAuth, contactsRouter);
 app.use("/signup", signupRouter);
 app.use("/unsubscribe", unsubscribeRouter);
 
-app.get("/", (_req, res) => {
+app.get("/", adminAuth, (_req, res) => {
   res.redirect("/contacts");
 });
 
