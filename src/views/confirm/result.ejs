@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title><%= confirmed ? "Subscription confirmed" : "Link not recognized" %> — Email OS</title>
+  <link rel="stylesheet" href="/admin.css">
+</head>
+<body>
+  <div class="center-page">
+    <% if (confirmed) { %>
+      <h1>You're confirmed!</h1>
+      <p class="muted">Thanks for confirming your subscription. You'll receive the next newsletter when it's sent.</p>
+    <% } else { %>
+      <h1>Link not recognized</h1>
+      <p class="muted">This confirmation link has already been used or is invalid. If you haven't confirmed yet, please sign up again.</p>
+    <% } %>
+  </div>
+</body>
+</html>

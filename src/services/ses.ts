@@ -1,6 +1,6 @@
-import { SESClient, SendRawEmailCommand } from "@aws-sdk/client-ses";
+import { Resend } from "resend";
 
-const ses = new SESClient({ region: process.env.AWS_REGION });
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 export interface ContactToSend {
   email: string;
@@ -11,46 +11,11 @@ function unsubscribeUrl(token: string) {
   return `${process.env.BASE_URL}/unsubscribe/${token}`;
 }
 
-function buildRawMessage(opts: {
-  from: string;
-  to: string;
-  subject: string;
-  html: string;
-  text?: string | null;
-  unsubscribeToken: string;
-}) {
-  const unsubUrl = unsubscribeUrl(opts.unsubscribeToken);
-  const htmlWithFooter = `${opts.html}<hr><p style="font-size:12px;color:#888;">
-    <a href="${unsubUrl}">Unsubscribe</a></p>`;
-  const boundary = `----=_EmailOS_${Date.now()}`;
-  const encodedSubject = `=?UTF-8?B?${Buffer.from(opts.subject, "utf8").toString("base64")}?=`;
-
-  const headers = [
-    `From: ${opts.from}`,
-    `To: ${opts.to}`,
-    `Subject: ${encodedSubject}`,
-    `MIME-Version: 1.0`,
-    `List-Unsubscribe: <${unsubUrl}>, <mailto:${opts.from}?subject=unsubscribe>`,
-    `List-Unsubscribe-Post: List-Unsubscribe=One-Click`,
-    `Content-Type: multipart/alternative; boundary="${boundary}"`,
-  ].join("\r\n");
-
-  const textPart = opts.text ?? opts.html.replace(/<\/(p|div|h[1-6]|li|tr|br)>/gi, "\n").replace(/<[^>]+>/g, "");
-
-  const body = [
-    `--${boundary}`,
-    `Content-Type: text/plain; charset=UTF-8`,
-    ``,
-    textPart,
-    `--${boundary}`,
-    `Content-Type: text/html; charset=UTF-8`,
-    ``,
-    htmlWithFooter,
-    `--${boundary}--`,
-  ].join("\r\n");
-
-  return `${headers}\r\n\r\n${body}`;
+function confirmationUrl(token: string) {
+  return `${process.env.BASE_URL}/confirm/${token}`;
 }
+
+const FROM = () => process.env.MAIL_FROM_ADDRESS!;
 
 export async function sendCampaignEmail(
   contact: ContactToSend,
@@ -58,18 +23,48 @@ export async function sendCampaignEmail(
   html: string,
   text: string | null
 ) {
-  const raw = buildRawMessage({
-    from: process.env.SES_FROM_ADDRESS!,
+  const unsubUrl = unsubscribeUrl(contact.unsubscribe_token);
+  const privacyUrl = "https://andreatarroni.com/privacy";
+
+  const htmlWithFooter = `${html}<hr><p style="font-size:12px;color:#888;">
+    <a href="${unsubUrl}">Unsubscribe</a> &middot; <a href="${privacyUrl}">Privacy Policy</a></p>`;
+
+  const plainText = text ?? html.replace(/<\/(p|div|h[1-6]|li|tr|br)>/gi, "\n").replace(/<[^>]+>/g, "");
+
+  const { error } = await resend.emails.send({
+    from: FROM(),
     to: contact.email,
     subject,
-    html,
-    text,
-    unsubscribeToken: contact.unsubscribe_token,
+    html: htmlWithFooter,
+    text: plainText,
+    headers: {
+      "List-Unsubscribe": `<${unsubUrl}>, <mailto:${FROM()}?subject=unsubscribe>`,
+      "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
+    },
   });
 
-  await ses.send(
-    new SendRawEmailCommand({
-      RawMessage: { Data: Buffer.from(raw) },
-    })
-  );
+  if (error) {
+    throw new Error(`Resend send failed: ${error.name} - ${error.message}`);
+  }
+}
+
+export async function sendConfirmationEmail(
+  to: string,
+  confirmationToken: string
+) {
+  const url = confirmationUrl(confirmationToken);
+
+  const { error } = await resend.emails.send({
+    from: FROM(),
+    to,
+    subject: "Please confirm your subscription to Andrea Tarroni's newsletter",
+    html: `<p>Thanks for signing up! Click the link below to confirm your subscription:</p>
+<p><a href="${url}">${url}</a></p>
+<p style="font-size:12px;color:#888;">If you didn't sign up for this newsletter, you can ignore this email.</p>`,
+    text: `Thanks for signing up! Confirm your subscription by visiting this link:\n\n${url}\n\nIf you didn't sign up for this newsletter, you can ignore this email.`,
+  });
+
+  if (error) {
+    throw new Error(`Resend send failed: ${error.name} - ${error.message}`);
+  }
 }

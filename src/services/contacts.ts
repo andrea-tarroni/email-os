@@ -22,6 +22,40 @@ export async function upsertActiveContact(
   return rows[0];
 }
 
+export async function insertPendingContact(
+  email: string,
+  name: string | null,
+  consent: ConsentInfo
+): Promise<{ id: number; confirmation_token: string } | null> {
+  const { rows } = await pool.query(
+    `INSERT INTO contacts (email, name, source, status, consent_source, consent_ip, consent_timestamp)
+     VALUES ($1, $2, $3, 'pending', $4, $5, now())
+     ON CONFLICT (email) DO NOTHING
+     RETURNING id, confirmation_token`,
+    [email, name, consent.source, consent.source, consent.ip ?? null]
+  );
+  return rows[0] ?? null;
+}
+
+export async function confirmContact(
+  token: string
+): Promise<{ id: number } | null> {
+  const { rows } = await pool.query(
+    `UPDATE contacts
+     SET status = 'active', confirmation_token = NULL
+     WHERE confirmation_token = $1 AND status = 'pending'
+     RETURNING id`,
+    [token]
+  );
+  if (rows[0]) {
+    await pool.query(
+      `INSERT INTO events (contact_id, type) VALUES ($1, 'confirm')`,
+      [rows[0].id]
+    );
+  }
+  return rows[0] ?? null;
+}
+
 export async function suppressContact(
   email: string,
   type: "bounce" | "complaint",

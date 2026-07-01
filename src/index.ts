@@ -3,6 +3,7 @@ import express from "express";
 import path from "node:path";
 import { campaignsRouter } from "./routes/campaigns";
 import { campaignsApiRouter } from "./routes/campaignsApi";
+import { confirmRouter } from "./routes/confirm";
 import { contactsRouter } from "./routes/contacts";
 import { signupRouter } from "./routes/signup";
 import { tagsRouter } from "./routes/tags";
@@ -30,6 +31,7 @@ app.use("/api/campaigns", campaignsApiRouter);
 app.use("/campaigns", adminAuth, campaignsRouter);
 app.use("/contacts", adminAuth, contactsRouter);
 app.use("/tags", adminAuth, tagsRouter);
+app.use("/confirm", confirmRouter);
 app.use("/signup", signupRouter);
 app.use("/unsubscribe", unsubscribeRouter);
 

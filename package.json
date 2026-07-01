@@ -1,7 +1,7 @@
 {
   "name": "email-os",
   "version": "0.1.0",
-  "description": "Self-hosted, lightweight email marketing system (contacts, newsletters, sequences) replacing GetResponse, sent via Amazon SES.",
+  "description": "Self-hosted, lightweight email marketing system (contacts, newsletters, sequences) replacing GetResponse, sent via Resend.",
   "private": true,
   "type": "commonjs",
   "main": "dist/index.js",
@@ -12,8 +12,8 @@
     "migrate": "node dist/db/migrate.js"
   },
   "dependencies": {
-    "@aws-sdk/client-ses": "^3.600.0",
     "dotenv": "^16.4.5",
+    "resend": "^6.16.0",
     "ejs": "^3.1.10",
     "express": "^4.19.2",
     "pg": "^8.12.0"
